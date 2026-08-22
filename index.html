@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cinnamoroll Tracker ☁️</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-gradient-start:#e0f7fa;
+  --bg-gradient-end:#fff0f5;
+  --panel-bg:rgba(255,255,255,0.85);
+  --panel-border:rgba(168,216,234,0.5);
+  --primary-blue:#89CFF0;
+  --soft-pink:#FFB7C5;
+  --lavender:#DDA0DD;
+  --cream:#FFF8E7;
+  --text-main:#5a5a7a;
+  --text-soft:#8888aa;
+  --shadow:0 4px 20px rgba(137,207,240,0.15);
+  --radius:20px;
+  --glass-blur:blur(12px);
+}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(180deg,var(--bg-gradient-start) 0%,var(--bg-gradient-end) 100%);
+  color:var(--text-main);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+#cloudfield{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:20px}
+.header{text-align:center;padding:30px 0}
+.header h1{
+  font-size:2.5rem;
+  font-weight:800;
+  background:linear-gradient(135deg,var(--primary-blue),var(--soft-pink));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-1px;
+}
+.header p{color:var(--text-soft);margin-top:8px;font-size:1rem}
+.astro-icon{font-size:3rem;display:block;margin-bottom:10px;animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+.data-controls{display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.btn{
+  padding:10px 20px;
+  border:2px solid var(--panel-border);
+  background:var(--panel-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  color:var(--text-main);
+  border-radius:50px;
+  cursor:pointer;
+  font-size:0.9rem;
+  transition:all 0.3s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:600;
+}
+.btn:hover{
+  border-color:var(--primary-blue);
+  box-shadow:0 4px 16px rgba(137,207,240,0.25);
+  transform:translateY(-2px);
+}
+.btn-primary{
+  background:linear-gradient(135deg,rgba(137,207,240,0.2),rgba(255,183,197,0.2));
+  border-color:var(--primary-blue);
+  color:#4a90b8;
+}
+.btn-success{
+  background:linear-gradient(135deg,rgba(144,238,144,0.2),rgba(144,238,144,0.05));
+  border-color:#90EE90;
+  color:#5cb85c;
+}
+.btn-success:hover{border-color:#90EE90;box-shadow:0 4px 16px rgba(144,238,144,0.2)}
+.btn-danger{border-color:var(--soft-pink);color:#e07085}
+input[type="file"]{display:none}
+.tabs{display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:5px;-webkit-overflow-scrolling:touch}
+.tab{
+  padding:12px 20px;
+  border:2px solid var(--panel-border);
+  background:var(--panel-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  color:var(--text-soft);
+  border-radius:var(--radius);
+  cursor:pointer;
+  font-weight:700;
+  white-space:nowrap;
+  transition:all 0.3s ease;
+  font-size:0.9rem;
+}
+.tab:hover{border-color:var(--soft-pink);color:var(--text-main);transform:scale(1.02)}
+.tab.active{
+  background:linear-gradient(135deg,rgba(137,207,240,0.25),rgba(255,183,197,0.25));
+  border-color:var(--primary-blue);
+  color:#4a90b8;
+  box-shadow:0 4px 16px rgba(137,207,240,0.15);
+}
+.panel{display:none;animation:fadeIn 0.4s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.glass-panel{
+  background:var(--panel-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:2px solid var(--panel-border);
+  border-radius:var(--radius);
+  padding:24px;
+  box-shadow:var(--shadow);
+  margin-bottom:20px;
+}
+.panel-title{
+  font-size:1.3rem;
+  font-weight:800;
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--primary-blue);
+}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.input,.select,textarea{
+  width:100%;
+  padding:12px 16px;
+  border:2px solid var(--panel-border);
+  background:rgba(255,255,255,0.7);
+  color:var(--text-main);
+  border-radius:14px;
+  font-size:0.95rem;
+  outline:none;
+  transition:all 0.3s;
+  font-family:inherit;
+}
+.input:focus,.select:focus,textarea:focus{
+  border-color:var(--primary-blue);
+  box-shadow:0 0 0 4px rgba(137,207,240,0.15);
+  background:#fff;
+}
+.input::placeholder,textarea::placeholder{color:var(--text-soft)}
+textarea{resize:vertical;min-height:80px}
+.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.calendar-nav{display:flex;gap:10px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-day-header{
+  text-align:center;
+  padding:10px;
+  font-weight:800;
+  color:var(--soft-pink);
+  font-size:0.85rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.cal-day{
+  aspect-ratio:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:6px;
+  border:2px solid var(--panel-border);
+  border-radius:14px;
+  background:rgba(255,255,255,0.6);
+  cursor:pointer;
+  transition:all 0.2s;
+  font-size:0.9rem;
+  position:relative;
+  min-height:70px;
+}
+.cal-day:hover{
+  border-color:var(--primary-blue);
+  background:rgba(137,207,240,0.1);
+  transform:scale(1.05);
+}
+.cal-day.other-month{opacity:0.3}
+.cal-day.today{
+  border-color:var(--primary-blue);
+  background:linear-gradient(135deg,rgba(137,207,240,0.15),rgba(255,183,197,0.15));
+  font-weight:800;
+  color:#4a90b8;
+}
+.cal-day.selected{
+  border-color:var(--soft-pink);
+  background:rgba(255,183,197,0.15);
+}
+.cal-day-number{align-self:flex-start;font-weight:700}
+.cal-dots{display:flex;gap:3px;margin-top:auto;flex-wrap:wrap;justify-content:center}
+.cal-dot{width:7px;height:7px;border-radius:50%}
+.dot-assign{background:var(--soft-pink)}
+.dot-plan{background:var(--lavender)}
+.item-list{display:flex;flex-direction:column;gap:10px}
+.item-card{
+  background:rgba(255,255,255,0.7);
+  border:2px solid var(--panel-border);
+  border-radius:16px;
+  padding:16px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  transition:all 0.3s;
+  animation:slideIn 0.3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.item-card:hover{
+  border-color:rgba(137,207,240,0.4);
+  transform:translateX(4px);
+  box-shadow:0 4px 12px rgba(137,207,240,0.1);
+}
+.item-checkbox{
+  width:24px;
+  height:24px;
+  border:2px solid var(--primary-blue);
+  border-radius:8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  transition:all 0.2s;
+  background:#fff;
+}
+.item-checkbox.checked{
+  background:var(--primary-blue);
+  border-color:var(--primary-blue);
+}
+.item-checkbox.checked::after{content:"✓";color:#fff;font-weight:900;font-size:0.8rem}
+.item-content{flex:1;min-width:0}
+.item-title{
+  font-weight:700;
+  margin-bottom:4px;
+  word-break:break-word;
+  cursor:text;
+  padding:4px;
+  border-radius:8px;
+  transition:background 0.2s;
+  color:var(--text-main);
+}
+.item-title:hover{background:rgba(137,207,240,0.1)}
+.item-meta{
+  font-size:0.8rem;
+  color:var(--text-soft);
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.item-tag{
+  display:inline-block;
+  padding:3px 12px;
+  border-radius:50px;
+  font-size:0.75rem;
+  font-weight:700;
+  border:2px solid;
+}
+.tag-high{color:#e07085;border-color:var(--soft-pink);background:rgba(255,183,197,0.15)}
+.tag-medium{color:#d4a017;border-color:#F0E68C;background:rgba(240,230,140,0.15)}
+.tag-low{color:#5cb85c;border-color:#90EE90;background:rgba(144,238,144,0.15)}
+.course-tag{
+  display:inline-block;
+  padding:3px 12px;
+  border-radius:50px;
+  font-size:0.75rem;
+  font-weight:700;
+  border:2px solid var(--lavender);
+  color:var(--lavender);
+  background:rgba(221,160,221,0.1);
+}
+.due-badge{
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:50px;
+  font-size:0.7rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  animation:pulse 2s infinite;
+}
+.due-today{background:rgba(255,183,197,0.2);color:#e07085;border:2px solid var(--soft-pink)}
+.due-tomorrow{background:rgba(240,230,140,0.2);color:#b8a020;border:2px solid #F0E68C}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.item-actions{display:flex;gap:8px;flex-shrink:0}
+.icon-btn{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  border:2px solid var(--panel-border);
+  background:rgba(255,255,255,0.8);
+  color:var(--text-soft);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.2s;
+  font-size:1rem;
+}
+.icon-btn:hover{border-color:var(--soft-pink);color:#e07085;transform:scale(1.1)}
+.icon-btn.edit-btn:hover{border-color:var(--primary-blue);color:#4a90b8}
+.item-card.done .item-title{text-decoration:line-through;opacity:0.5}
+.edit-mode{background:rgba(137,207,240,0.08)!important;border-color:var(--primary-blue)!important}
+.edit-fields{display:flex;flex-direction:column;gap:8px;width:100%}
+.edit-fields .input{background:#fff;font-size:0.9rem;padding:8px 12px}
+.edit-actions{display:flex;gap:8px;margin-top:4px}
+.edit-actions .btn{padding:6px 14px;font-size:0.8rem}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-soft)}
+.empty-state .emoji{font-size:3rem;margin-bottom:15px;display:block;opacity:0.8}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.plan-card{
+  background:rgba(255,255,255,0.7);
+  border:2px solid var(--panel-border);
+  border-radius:16px;
+  padding:20px;
+  transition:all 0.3s;
+  position:relative;
+  overflow:hidden;
+}
+.plan-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:5px;
+  height:100%;
+  background:linear-gradient(to bottom,var(--primary-blue),var(--soft-pink));
+}
+.plan-card:hover{
+  transform:translateY(-4px);
+  border-color:var(--soft-pink);
+  box-shadow:0 10px 30px rgba(137,207,240,0.12);
+}
+.plan-date{
+  font-size:0.8rem;
+  color:var(--primary-blue);
+  font-weight:800;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.plan-title{
+  font-size:1.1rem;
+  font-weight:800;
+  margin-bottom:8px;
+  color:var(--text-main);
+  cursor:text;
+  padding:4px;
+  border-radius:8px;
+  transition:background 0.2s;
+}
+.plan-title:hover{background:rgba(137,207,240,0.1)}
+.plan-desc{
+  color:var(--text-soft);
+  font-size:0.9rem;
+  line-height:1.5;
+  cursor:text;
+  padding:4px;
+  border-radius:8px;
+  transition:background 0.2s;
+}
+.plan-desc:hover{background:rgba(137,207,240,0.1)}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(137,207,240,0.3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(137,207,240,0.5)}
+@media(max-width:768px){
+  .header h1{font-size:1.8rem}
+  .calendar-grid{gap:3px}
+  .cal-day{min-height:50px;font-size:0.8rem;padding:4px}
+  .form-row{grid-template-columns:1fr}
+  .tabs{gap:6px}
+  .tab{padding:10px 14px;font-size:0.8rem}
+  .item-card{padding:12px;gap:10px}
+  .plan-grid{grid-template-columns:1fr}
+}
+.save-indicator{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  padding:10px 20px;
+  background:rgba(137,207,240,0.2);
+  border:2px solid var(--primary-blue);
+  border-radius:50px;
+  color:#4a90b8;
+  font-size:0.85rem;
+  font-weight:700;
+  backdrop-filter:blur(10px);
+  opacity:0;
+  transition:opacity 0.5s;
+  z-index:100;
+}
+.save-indicator.show{opacity:1}
+.notif-bell{
+  position:fixed;
+  top:20px;
+  right:20px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:2px solid var(--panel-border);
+  background:var(--panel-bg);
+  backdrop-filter:var(--glass-blur);
+  color:var(--text-main);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.3rem;
+  z-index:100;
+  transition:all 0.3s;
+  box-shadow:var(--shadow);
+}
+.notif-bell:hover{border-color:var(--soft-pink);box-shadow:0 4px 16px rgba(255,183,197,0.2);transform:scale(1.1)}
+.notif-count{
+  position:absolute;
+  top:-4px;
+  right:-4px;
+  background:var(--soft-pink);
+  color:#fff;
+  font-size:0.65rem;
+  font-weight:800;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #fff;
+}
+.notif-count.hidden{display:none}
+.sync-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  border-radius:50px;
+  font-size:0.8rem;
+  font-weight:700;
+  margin-bottom:16px;
+}
+.sync-status.connected{background:rgba(144,238,144,0.15);color:#5cb85c;border:2px solid #90EE90}
+.sync-status.disconnected{background:rgba(255,183,197,0.15);color:#e07085;border:2px solid var(--soft-pink)}
+.sync-code-box{
+  background:rgba(255,255,255,0.8);
+  border:2px solid var(--panel-border);
+  border-radius:14px;
+  padding:16px;
+  font-family:monospace;
+  font-size:0.85rem;
+  color:var(--primary-blue);
+  word-break:break-all;
+  margin:10px 0;
+  cursor:pointer;
+  transition:all 0.2s;
+  font-weight:700;
+}
+.sync-code-box:hover{border-color:var(--primary-blue);background:rgba(137,207,240,0.1)}
+.sync-instructions{color:var(--text-soft);font-size:0.9rem;line-height:1.6;margin-bottom:16px}
+.sync-instructions strong{color:var(--text-main)}
+.toggle-switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer}
+.toggle-switch input{display:none}
+.toggle-slider{
+  width:44px;
+  height:24px;
+  background:rgba(137,207,240,0.3);
+  border-radius:24px;
+  position:relative;
+  transition:all 0.3s;
+  border:2px solid var(--panel-border);
+}
+.toggle-slider::after{
+  content:'';
+  position:absolute;
+  width:18px;
+  height:18px;
+  background:#fff;
+  border-radius:50%;
+  top:1px;
+  left:1px;
+  transition:all 0.3s;
+  box-shadow:0 2px 4px rgba(0,0,0,0.1);
+}
+.toggle-switch input:checked+.toggle-slider{background:rgba(144,238,144,0.3);border-color:#90EE90}
+.toggle-switch input:checked+.toggle-slider::after{transform:translateX(20px);background:#90EE90}
+.danger-zone{
+  border:2px solid rgba(255,183,197,0.4);
+  border-radius:16px;
+  padding:20px;
+  margin-top:20px;
+  background:rgba(255,183,197,0.05);
+}
+.danger-zone-title{color:#e07085;font-weight:800;font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.danger-zone p{color:var(--text-soft);font-size:0.85rem;margin-bottom:12px}
+</style>
+</head>
+<body>
+<canvas id="cloudfield"></canvas>
+
+<div class="notif-bell" onclick="switchTab('assignments')" title="Urgent missions">
+🎀<span class="notif-count hidden" id="notifCount">0</span>
+</div>
+
+<div class="container">
+<div class="header">
+<span class="astro-icon">☁️</span>
+<h1>Cinnamoroll Tracker</h1>
+<p>Your fluffy cloud planner ☁️🐶</p>
+</div>
+
+<div class="data-controls">
+<button class="btn btn-primary" onclick="exportData()">📤 Export JSON</button>
+<button class="btn" onclick="document.getElementById('importFile').click()">📥 Import JSON</button>
+<input type="file" id="importFile" accept=".json" onchange="importData(this)">
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="switchTab('dashboard')">☁️ Dashboard</div>
+<div class="tab" onclick="switchTab('calendar')">📅 Calendar</div>
+<div class="tab" onclick="switchTab('assignments')">📚 Assignments</div>
+<div class="tab" onclick="switchTab('grocery')">🥐 Grocery</div>
+<div class="tab" onclick="switchTab('plans')">🌸 Plans</div>
+<div class="tab" onclick="switchTab('sync')">☁️ Sync</div>
+</div>
+
+<div id="dashboard" class="panel active">
+<div class="glass-panel">
+<div class="panel-title">☁️ Cloud Overview</div>
+<div class="plan-grid">
+<div class="plan-card"><div class="plan-date">Pending Assignments</div><div class="plan-title" id="dash-assign-count" style="font-size:2rem;color:var(--primary-blue)">0</div><div class="plan-desc">Tasks floating in the clouds</div></div>
+<div class="plan-card"><div class="plan-date">Grocery Items</div><div class="plan-title" id="dash-grocery-count" style="font-size:2rem;color:#5cb85c">0</div><div class="plan-desc">Yummy things to get</div></div>
+<div class="plan-card"><div class="plan-date">Upcoming Plans</div><div class="plan-title" id="dash-plan-count" style="font-size:2rem;color:var(--soft-pink)">0</div><div class="plan-desc">Sweet events ahead</div></div>
+<div class="plan-card"><div class="plan-date">Today's Date</div><div class="plan-title" id="dash-date" style="font-size:1.5rem;color:var(--text-main)"></div><div class="plan-desc">Current fluffy date</div></div>
+</div>
+</div>
+<div class="glass-panel">
+<div class="panel-title">🎀 Priority Missions (Due Soon)</div>
+<div class="item-list" id="dashboard-priority">
+<div class="empty-state"><span class="emoji">☁️</span><p>No urgent missions. Everything is fluffy and calm!</p></div>
+</div>
+</div>
+</div>
+
+<div id="calendar" class="panel">
+<div class="glass-panel">
+<div class="calendar-header">
+<div class="panel-title" style="margin:0">📅 Cloud Calendar</div>
+<div class="calendar-nav">
+<button class="btn" onclick="changeMonth(-1)">◀</button>
+<button class="btn btn-primary" id="currentMonth">Month Year</button>
+<button class="btn" onclick="changeMonth(1)">▶</button>
+</div>
+</div>
+<div class="calendar-grid" id="calendar-grid"></div>
+</div>
+<div class="glass-panel" id="day-events" style="display:none">
+<div class="panel-title" id="selected-date-title">Events</div>
+<div class="item-list" id="day-events-list"></div>
+</div>
+</div>
+
+<div id="assignments" class="panel">
+<div class="glass-panel">
+<div class="panel-title">📚 New Assignment</div>
+<div class="form-row">
+<input type="text" class="input" id="assign-title" placeholder="Task title...">
+<input type="text" class="input" id="assign-course" placeholder="Subject / Course...">
+<input type="date" class="input" id="assign-date">
+<select class="select" id="assign-priority">
+<option value="high">🎀 High Priority</option>
+<option value="medium" selected>☁️ Medium Priority</option>
+<option value="low">🌸 Low Priority</option>
+</select>
+</div>
+<textarea class="input" id="assign-desc" placeholder="Task details..."></textarea>
+<button class="btn btn-primary" style="margin-top:12px" onclick="addAssignment()">🐾 Add Task</button>
+</div>
+<div class="glass-panel">
+<div class="panel-title">📋 Active Tasks</div>
+<div class="item-list" id="assign-list">
+<div class="empty-state"><span class="emoji">☁️</span><p>No tasks yet. Add one to start your fluffy day!</p></div>
+</div>
+</div>
+</div>
+
+<div id="grocery" class="panel">
+<div class="glass-panel">
+<div class="panel-title">🥐 Shopping List</div>
+<div class="form-row">
+<input type="text" class="input" id="grocery-item" placeholder="Item name...">
+<input type="text" class="input" id="grocery-category" placeholder="Category (e.g., Snacks, Drinks)...">
+<input type="number" class="input" id="grocery-qty" placeholder="Qty" min="1" value="1" style="max-width:100px">
+</div>
+<button class="btn btn-primary" onclick="addGrocery()">➕ Add Item</button>
+</div>
+<div class="glass-panel">
+<div class="panel-title">📦 Shopping Bag</div>
+<div class="item-list" id="grocery-list">
+<div class="empty-state"><span class="emoji">🛍️</span><p>Your bag is empty. Let's go shopping!</p></div>
+</div>
+</div>
+</div>
+
+<div id="plans" class="panel">
+<div class="glass-panel">
+<div class="panel-title">🌸 New Plan / Event</div>
+<div class="form-row">
+<input type="text" class="input" id="plan-title" placeholder="Plan title...">
+<input type="date" class="input" id="plan-date">
+<input type="time" class="input" id="plan-time">
+</div>
+<textarea class="input" id="plan-desc" placeholder="Details about this plan..."></textarea>
+<button class="btn btn-primary" style="margin-top:12px" onclick="addPlan()">🌟 Save Plan</button>
+</div>
+<div class="glass-panel">
+<div class="panel-title">🗺️ Sweet Timeline</div>
+<div class="item-list" id="plan-list">
+<div class="empty-state"><span class="emoji">🌸</span><p>No plans yet. Dream something sweet!</p></div>
+</div>
+</div>
+</div>
+
+<div id="sync" class="panel">
+<div class="glass-panel">
+<div class="panel-title">☁️ Cloud Sync</div>
+<div id="syncStatusBox" class="sync-status disconnected">
+<span id="syncStatusIcon">🔴</span>
+<span id="syncStatusText">Not connected to cloud</span>
+</div>
+<div class="sync-instructions">
+<strong>How to sync across devices automatically:</strong><br><br>
+1. Go to <strong>jsonbin.io</strong> → Sign up free (email only, no credit card)<br>
+2. Click your profile → <strong>API Keys</strong> → copy the key<br>
+3. Paste it below → click <strong>Create New Cloud Bin</strong><br>
+4. On your other device, paste the <strong>same key</strong> and <strong>same Bin ID</strong> → click <strong>Connect</strong><br>
+5. Toggle <strong>Auto-Sync ON</strong> — every save pushes to the cloud instantly.
+</div>
+<div class="form-row" style="grid-template-columns:1fr">
+<input type="text" class="input" id="syncApiKey" placeholder="Paste your jsonbin.io API Key here...">
+</div>
+<div class="form-row" style="grid-template-columns:1fr;margin-top:10px">
+<input type="text" class="input" id="syncBinId" placeholder="Bin ID (leave empty to create new)...">
+</div>
+<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+<button class="btn btn-success" onclick="createCloudBin()">➕ Create New Cloud Bin</button>
+<button class="btn btn-primary" onclick="connectCloud()">🔗 Connect to Existing Bin</button>
+<button class="btn" onclick="disconnectCloud()">❌ Disconnect</button>
+</div>
+<div style="margin-top:20px;display:flex;align-items:center;gap:12px">
+<label class="toggle-switch">
+<input type="checkbox" id="autoSyncToggle" onchange="toggleAutoSync()">
+<span class="toggle-slider"></span>
+</label>
+<span style="font-weight:700;color:var(--text-main)">Auto-Sync (push on every save)</span>
+</div>
+<div id="syncBinDisplay" style="display:none;margin-top:20px">
+<div style="font-size:0.85rem;color:var(--text-soft);margin-bottom:6px">Your Bin ID (save this to connect other devices):</div>
+<div class="sync-code-box" id="syncBinIdDisplay" onclick="copyBinId()" title="Click to copy"></div>
+</div>
+</div>
+<div class="glass-panel">
+<div class="panel-title">📋 Manual Copy / Paste</div>
+<div class="sync-instructions">No account? No problem. Copy your data as text, send it to yourself, and paste it on your other device.</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button class="btn btn-primary" onclick="copyDataToClipboard()">📋 Copy All Data</button>
+</div>
+<textarea class="input" id="manualSyncBox" placeholder="Paste data here from another device, then click Load..." style="margin-top:16px;min-height:120px;font-family:monospace;font-size:0.8rem"></textarea>
+<button class="btn btn-success" style="margin-top:10px" onclick="loadDataFromClipboard()">📥 Load Pasted Data</button>
+</div>
+<div class="glass-panel danger-zone">
+<div class="danger-zone-title">🚨 Danger Zone</div>
+<p>This will permanently erase ALL your tasks, shopping items, and plans. This cannot be undone. To proceed, type <strong>DELETE</strong> below.</p>
+<input type="text" class="input" id="deleteConfirm" placeholder="Type DELETE to confirm..." style="max-width:300px;margin-bottom:12px">
+<br>
+<button class="btn btn-danger" onclick="clearAll()">🗑️ Erase Everything</button>
+</div>
+</div>
+</div>
+
+<div class="save-indicator" id="saveIndicator">💾 Saved</div>
+
+<script>
+let data={assignments:[],grocery:[],plans:[]};
+const STORAGE_KEY='cinnamoroll_tracker_data';
+const SYNC_KEY='cinnamoroll_tracker_sync';
+let syncConfig=null;
+let notifiedIds=new Set();
+let autoSyncInterval=null;
+
+function loadData(){
+const saved=localStorage.getItem(STORAGE_KEY);
+if(saved){try{data=JSON.parse(saved)}catch(e){}}
+const syncSaved=localStorage.getItem(SYNC_KEY);
+if(syncSaved){try{syncConfig=JSON.parse(syncSaved);updateSyncUI();if(syncConfig.autoSync)startAutoSync()}catch(e){}}
+renderAll();checkNotifications();
+}
+
+function saveData(skipCloud){
+localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+showSaveIndicator();renderAll();checkNotifications();
+if(!skipCloud&&syncConfig&&syncConfig.autoSync)pushToCloud();
+}
+
+function showSaveIndicator(){
+const el=document.getElementById('saveIndicator');
+el.classList.add('show');
+setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+async function createCloudBin(){
+const key=document.getElementById('syncApiKey').value.trim();
+if(!key)return alert('Please paste your jsonbin.io API Key first.');
+try{
+const res=await fetch('https://api.jsonbin.io/v3/b',{
+method:'POST',
+headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Private':'false'},
+body:JSON.stringify(data)
+});
+const json=await res.json();
+if(json.metadata&&json.metadata.id){
+syncConfig={apiKey:key,binId:json.metadata.id,autoSync:true};
+localStorage.setItem(SYNC_KEY,JSON.stringify(syncConfig));
+document.getElementById('syncBinId').value=json.metadata.id;
+updateSyncUI();startAutoSync();
+alert('Cloud bin created! Your Bin ID is shown below. Save it to connect your phone.');
+}else{alert('Failed to create bin. Check your API key.');}
+}catch(e){alert('Network error. Make sure you have internet.');}
+}
+
+async function connectCloud(){
+const key=document.getElementById('syncApiKey').value.trim();
+const binId=document.getElementById('syncBinId').value.trim();
+if(!key||!binId)return alert('Please enter both API Key and Bin ID.');
+try{
+const res=await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`,{headers:{'X-Master-Key':key}});
+const json=await res.json();
+if(json.record){
+data=json.record;
+syncConfig={apiKey:key,binId:binId,autoSync:false};
+localStorage.setItem(SYNC_KEY,JSON.stringify(syncConfig));
+localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+updateSyncUI();renderAll();
+alert('Connected! Data pulled from cloud.');
+}else{alert('Could not find that bin. Check your Bin ID.');}
+}catch(e){alert('Network error. Check your key and Bin ID.');}
+}
+
+async function pushToCloud(){
+if(!syncConfig)return;
+try{
+await fetch(`https://api.jsonbin.io/v3/b/${syncConfig.binId}`,{
+method:'PUT',
+headers:{'Content-Type':'application/json','X-Master-Key':syncConfig.apiKey},
+body:JSON.stringify(data)
+});
+}catch(e){console.log('Cloud push failed',e);}
+}
+
+async function pullFromCloud(){
+if(!syncConfig)return;
+try{
+const res=await fetch(`https://api.jsonbin.io/v3/b/${syncConfig.binId}/latest`,{headers:{'X-Master-Key':syncConfig.apiKey}});
+const json=await res.json();
+if(json.record){data=json.record;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();}
+}catch(e){console.log('Cloud pull failed',e);}
+}
+
+function disconnectCloud(){
+syncConfig=null;localStorage.removeItem(SYNC_KEY);
+stopAutoSync();updateSyncUI();
+document.getElementById('syncApiKey').value='';
+document.getElementById('syncBinId').value='';
+}
+
+function toggleAutoSync(){
+const on=document.getElementById('autoSyncToggle').checked;
+if(!syncConfig){document.getElementById('autoSyncToggle').checked=false;return alert('Connect to cloud first.');}
+syncConfig.autoSync=on;localStorage.setItem(SYNC_KEY,JSON.stringify(syncConfig));
+if(on)startAutoSync();else stopAutoSync();updateSyncUI();
+}
+
+function startAutoSync(){stopAutoSync();autoSyncInterval=setInterval(pullFromCloud,10000);}
+function stopAutoSync(){if(autoSyncInterval){clearInterval(autoSyncInterval);autoSyncInterval=null;}}
+
+function updateSyncUI(){
+const statusBox=document.getElementById('syncStatusBox');
+const statusIcon=document.getElementById('syncStatusIcon');
+const statusText=document.getElementById('syncStatusText');
+const binDisplay=document.getElementById('syncBinDisplay');
+const binIdDisplay=document.getElementById('syncBinIdDisplay');
+const toggle=document.getElementById('autoSyncToggle');
+if(syncConfig){
+statusBox.className='sync-status connected';
+statusIcon.textContent='🟢';
+statusText.textContent=syncConfig.autoSync?'Cloud connected - Auto-sync ON':'Cloud connected - Auto-sync OFF';
+binDisplay.style.display='block';binIdDisplay.textContent=syncConfig.binId;
+document.getElementById('syncApiKey').value=syncConfig.apiKey;
+document.getElementById('syncBinId').value=syncConfig.binId;
+toggle.checked=syncConfig.autoSync;
+}else{
+statusBox.className='sync-status disconnected';
+statusIcon.textContent='🔴';statusText.textContent='Not connected to cloud';
+binDisplay.style.display='none';toggle.checked=false;
+}
+}
+
+function copyBinId(){
+if(!syncConfig)return;
+navigator.clipboard.writeText(syncConfig.binId).then(()=>{alert('Bin ID copied! Text it to yourself to set up your phone.');});
+}
+
+function copyDataToClipboard(){
+const json=JSON.stringify(data);
+navigator.clipboard.writeText(json).then(()=>{alert('All your data copied! Paste it in a text to yourself.');}).catch(()=>{
+const box=document.getElementById('manualSyncBox');box.value=json;box.select();
+alert('Data placed in the box below. Copy it manually.');
+});
+}
+
+function loadDataFromClipboard(){
+const text=document.getElementById('manualSyncBox').value.trim();
+if(!text)return alert('Paste some data first.');
+try{
+const imported=JSON.parse(text);
+if(imported.assignments&&imported.grocery&&imported.plans){
+data=imported;saveData();
+document.getElementById('manualSyncBox').value='';
+alert('Data loaded successfully!');
+}else{alert('Invalid data format.');}
+}catch(e){alert('That does not look like valid data.');}
+}
+
+function exportData(){
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;
+a.download=`cinnamoroll-backup-${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);
+}
+
+function importData(input){
+const file=input.files[0];if(!file)return;
+const reader=new FileReader();
+reader.onload=(e)=>{
+try{
+const imported=JSON.parse(e.target.result);
+if(imported.assignments&&imported.grocery&&imported.plans){data=imported;saveData();alert('Data imported!');}
+else{alert('Invalid format.');}
+}catch(err){alert('Failed to import.');}
+input.value='';
+};reader.readAsText(file);
+}
+
+function clearAll(){
+const confirmText=document.getElementById('deleteConfirm').value.trim();
+if(confirmText!=='DELETE'){
+alert('You must type DELETE (in all caps) to confirm. This protects you from accidents.');
+return;
+}
+if(confirm('FINAL WARNING: This will permanently erase ALL your data. Are you absolutely sure?')){
+data={assignments:[],grocery:[],plans:[]};
+document.getElementById('deleteConfirm').value='';
+saveData();
+alert('All data has been erased.');
+}
+}
+
+function requestNotificationPermission(){
+if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();
+}
+
+function checkNotifications(){
+const now=new Date();now.setHours(0,0,0,0);
+let urgentCount=0;
+data.assignments.forEach(a=>{
+if(a.done||!a.dueDate)return;
+const due=new Date(a.dueDate+'T00:00:00');
+const diff=(due-now)/(1000*60*60*24);
+if(diff>=0&&diff<=1){
+urgentCount++;
+if(!notifiedIds.has(a.id)&&'Notification'in window&&Notification.permission==='granted'){
+new Notification('Cinnamoroll Tracker',{body:`"${a.title}" is due ${diff===0?'today':'tomorrow'}! ☁️`});
+notifiedIds.add(a.id);
+}
+}
+});
+const bell=document.getElementById('notifCount');
+if(urgentCount>0){bell.textContent=urgentCount;bell.classList.remove('hidden');}
+else{bell.classList.add('hidden');}
+}
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2);}
+
+function switchTab(tabId){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(tabId).classList.add('active');
+document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick').includes(tabId))t.classList.add('active');});
+if(tabId==='calendar')renderCalendar();
+if(tabId==='dashboard')renderDashboard();
+}
+
+function addAssignment(){
+const title=document.getElementById('assign-title').value.trim();
+const course=document.getElementById('assign-course').value.trim();
+const date=document.getElementById('assign-date').value;
+const priority=document.getElementById('assign-priority').value;
+const desc=document.getElementById('assign-desc').value.trim();
+if(!title)return alert('Please enter a task title.');
+data.assignments.push({id:uid(),title,course,dueDate:date,priority,desc,done:false,created:new Date().toISOString()});
+document.getElementById('assign-title').value='';
+document.getElementById('assign-course').value='';
+document.getElementById('assign-date').value='';
+document.getElementById('assign-desc').value='';
+saveData();
+}
+
+function toggleAssign(id){
+const a=data.assignments.find(x=>x.id===id);
+if(a){a.done=!a.done;saveData();}
+}
+
+function deleteAssign(id){
+data.assignments=data.assignments.filter(x=>x.id!==id);
+notifiedIds.delete(id);saveData();
+}
+
+function startEditAssign(id){
+const a=data.assignments.find(x=>x.id===id);if(!a)return;
+const card=document.getElementById(`assign-${a.id}`);if(!card)return;
+card.classList.add('edit-mode');
+card.innerHTML=`<div class="edit-fields"><input type="text" class="input" id="edit-assign-title-${a.id}" value="${escapeHtml(a.title)}" placeholder="Title"><input type="text" class="input" id="edit-assign-course-${a.id}" value="${escapeHtml(a.course||'')}" placeholder="Course / Subject"><div style="display:flex;gap:10px"><input type="date" class="input" id="edit-assign-date-${a.id}" value="${a.dueDate||''}" style="flex:1"><select class="select" id="edit-assign-priority-${a.id}" style="flex:1"><option value="high" ${a.priority==='high'?'selected':''}>High</option><option value="medium" ${a.priority==='medium'?'selected':''}>Medium</option><option value="low" ${a.priority==='low'?'selected':''}>Low</option></select></div><textarea class="input" id="edit-assign-desc-${a.id}" placeholder="Details" rows="2">${escapeHtml(a.desc||'')}</textarea><div class="edit-actions"><button class="btn btn-primary" onclick="saveEditAssign('${a.id}')">Save</button><button class="btn" onclick="renderAssignments()">Cancel</button></div></div>`;
+}
+
+function saveEditAssign(id){
+const a=data.assignments.find(x=>x.id===id);if(!a)return;
+a.title=document.getElementById(`edit-assign-title-${id}`).value.trim()||a.title;
+a.course=document.getElementById(`edit-assign-course-${id}`).value.trim();
+a.dueDate=document.getElementById(`edit-assign-date-${id}`).value;
+a.priority=document.getElementById(`edit-assign-priority-${id}`).value;
+a.desc=document.getElementById(`edit-assign-desc-${id}`).value.trim();
+notifiedIds.delete(id);saveData();
+}
+
+function addGrocery(){
+const item=document.getElementById('grocery-item').value.trim();
+const category=document.getElementById('grocery-category').value.trim()||'General';
+const qty=parseInt(document.getElementById('grocery-qty').value)||1;
+if(!item)return alert('Please enter an item name.');
+data.grocery.push({id:uid(),item,category,qty,done:false,created:new Date().toISOString()});
+document.getElementById('grocery-item').value='';
+document.getElementById('grocery-category').value='';
+document.getElementById('grocery-qty').value='1';
+saveData();
+}
+
+function toggleGrocery(id){
+const g=data.grocery.find(x=>x.id===id);
+if(g){g.done=!g.done;saveData();}
+}
+
+function deleteGrocery(id){
+data.grocery=data.grocery.filter(x=>x.id!==id);saveData();
+}
+
+function startEditGrocery(id){
+const g=data.grocery.find(x=>x.id===id);if(!g)return;
+const card=document.getElementById(`grocery-${g.id}`);if(!card)return;
+card.classList.add('edit-mode');
+card.innerHTML=`<div class="edit-fields"><input type="text" class="input" id="edit-grocery-item-${g.id}" value="${escapeHtml(g.item)}" placeholder="Item name"><div style="display:flex;gap:10px"><input type="text" class="input" id="edit-grocery-cat-${g.id}" value="${escapeHtml(g.category)}" placeholder="Category" style="flex:1"><input type="number" class="input" id="edit-grocery-qty-${g.id}" value="${g.qty}" min="1" style="max-width:80px"></div><div class="edit-actions"><button class="btn btn-primary" onclick="saveEditGrocery('${g.id}')">Save</button><button class="btn" onclick="renderGrocery()">Cancel</button></div></div>`;
+}
+
+function saveEditGrocery(id){
+const g=data.grocery.find(x=>x.id===id);if(!g)return;
+g.item=document.getElementById(`edit-grocery-item-${id}`).value.trim()||g.item;
+g.category=document.getElementById(`edit-grocery-cat-${id}`).value.trim()||g.category;
+g.qty=parseInt(document.getElementById(`edit-grocery-qty-${id}`).value)||1;
+saveData();
+}
+
+function addPlan(){
+const title=document.getElementById('plan-title').value.trim();
+const date=document.getElementById('plan-date').value;
+const time=document.getElementById('plan-time').value;
+const desc=document.getElementById('plan-desc').value.trim();
+if(!title)return alert('Please enter a plan title.');
+data.plans.push({id:uid(),title,date,time,desc,created:new Date().toISOString()});
+document.getElementById('plan-title').value='';
+document.getElementById('plan-date').value='';
+document.getElementById('plan-time').value='';
+document.getElementById('plan-desc').value='';
+saveData();
+}
+
+function deletePlan(id){
+data.plans=data.plans.filter(x=>x.id!==id);saveData();
+}
+
+function startEditPlan(id){
+const p=data.plans.find(x=>x.id===id);if(!p)return;
+const card=document.getElementById(`plan-${p.id}`);if(!card)return;
+card.classList.add('edit-mode');
+card.innerHTML=`<div class="edit-fields"><input type="text" class="input" id="edit-plan-title-${p.id}" value="${escapeHtml(p.title)}" placeholder="Plan title"><div style="display:flex;gap:10px"><input type="date" class="input" id="edit-plan-date-${p.id}" value="${p.date||''}" style="flex:1"><input type="time" class="input" id="edit-plan-time-${p.id}" value="${p.time||''}" style="flex:1"></div><textarea class="input" id="edit-plan-desc-${p.id}" placeholder="Details" rows="2">${escapeHtml(p.desc||'')}</textarea><div class="edit-actions"><button class="btn btn-primary" onclick="saveEditPlan('${p.id}')">Save</button><button class="btn" onclick="renderPlans()">Cancel</button></div></div>`;
+}
+
+function saveEditPlan(id){
+const p=data.plans.find(x=>x.id===id);if(!p)return;
+p.title=document.getElementById(`edit-plan-title-${id}`).value.trim()||p.title;
+p.date=document.getElementById(`edit-plan-date-${id}`).value;
+p.time=document.getElementById(`edit-plan-time-${id}`).value;
+p.desc=document.getElementById(`edit-plan-desc-${id}`).value.trim();
+saveData();
+}
+
+function renderAll(){
+renderAssignments();renderGrocery();renderPlans();renderDashboard();renderCalendar();
+}
+
+function getDueBadge(dueDate){
+if(!dueDate)return'';
+const now=new Date();now.setHours(0,0,0,0);
+const due=new Date(dueDate+'T00:00:00');
+const diff=Math.round((due-now)/(1000*60*60*24));
+if(diff===0)return'<span class="due-badge due-today">DUE TODAY</span>';
+if(diff===1)return'<span class="due-badge due-tomorrow">DUE TOMORROW</span>';
+if(diff<0)return'<span class="due-badge due-today">OVERDUE</span>';
+return'';
+}
+
+function renderAssignments(){
+const list=document.getElementById('assign-list');
+const active=data.assignments.filter(a=>!a.done);
+const done=data.assignments.filter(a=>a.done);
+const sorted=[...active.sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)),...done];
+if(sorted.length===0){list.innerHTML=`<div class="empty-state"><span class="emoji">☁️</span><p>No tasks yet. Add one to start your fluffy day!</p></div>`;return;}
+list.innerHTML=sorted.map(a=>`<div class="item-card ${a.done?'done':''}" id="assign-${a.id}"><div class="item-checkbox ${a.done?'checked':''}" onclick="toggleAssign('${a.id}')"></div><div class="item-content"><div class="item-title" onclick="startEditAssign('${a.id}')">${escapeHtml(a.title)}</div><div class="item-meta">${a.course?`<span class="course-tag">${escapeHtml(a.course)}</span>`:''}${a.dueDate?`📅 ${formatDate(a.dueDate)}`:''}${getDueBadge(a.dueDate)}${a.desc?`• ${escapeHtml(a.desc)}`:''}</div></div><span class="item-tag tag-${a.priority}">${a.priority}</span><div class="item-actions"><button class="icon-btn edit-btn" onclick="startEditAssign('${a.id}')" title="Edit">✏️</button><button class="icon-btn" onclick="deleteAssign('${a.id}')">🗑</button></div></div>`).join('');
+}
+
+function renderGrocery(){
+const list=document.getElementById('grocery-list');
+const sorted=[...data.grocery.filter(g=>!g.done),...data.grocery.filter(g=>g.done)];
+if(sorted.length===0){list.innerHTML=`<div class="empty-state"><span class="emoji">🛍️</span><p>Your bag is empty. Let's go shopping!</p></div>`;return;}
+list.innerHTML=sorted.map(g=>`<div class="item-card ${g.done?'done':''}" id="grocery-${g.id}"><div class="item-checkbox ${g.done?'checked':''}" onclick="toggleGrocery('${g.id}')"></div><div class="item-content"><div class="item-title" onclick="startEditGrocery('${g.id}')">${escapeHtml(g.item)} ${g.qty>1?`(x${g.qty})`:''}</div><div class="item-meta">🏷️ ${escapeHtml(g.category)}</div></div><div class="item-actions"><button class="icon-btn edit-btn" onclick="startEditGrocery('${g.id}')" title="Edit">✏️</button><button class="icon-btn" onclick="deleteGrocery('${g.id}')">🗑</button></div></div>`).join('');
+}
+
+function renderPlans(){
+const list=document.getElementById('plan-list');
+const sorted=data.plans.sort((a,b)=>{
+const da=a.date?new Date(a.date+'T'+(a.time||'00:00')):new Date(8640000000000000);
+const db=b.date?new Date(b.date+'T'+(b.time||'00:00')):new Date(8640000000000000);
+return da-db;
+});
+if(sorted.length===0){list.innerHTML=`<div class="empty-state"><span class="emoji">🌸</span><p>No plans yet. Dream something sweet!</p></div>`;return;}
+list.innerHTML=sorted.map(p=>`<div class="plan-card" id="plan-${p.id}"><div class="plan-date">${p.date?formatDate(p.date):'No date'} ${p.time?'• '+p.time:''}</div><div class="plan-title" onclick="startEditPlan('${p.id}')">${escapeHtml(p.title)}</div>${p.desc?`<div class="plan-desc" onclick="startEditPlan('${p.id}')">${escapeHtml(p.desc)}</div>`:''}<div style="margin-top:12px;text-align:right"><button class="icon-btn edit-btn" onclick="startEditPlan('${p.id}')" title="Edit">✏️</button><button class="icon-btn" onclick="deletePlan('${p.id}')" title="Delete">🗑</button></div></div>`).join('');
+}
+
+function renderDashboard(){
+document.getElementById('dash-assign-count').textContent=data.assignments.filter(a=>!a.done).length;
+document.getElementById('dash-grocery-count').textContent=data.grocery.filter(g=>!g.done).length;
+document.getElementById('dash-plan-count').textContent=data.plans.length;
+document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+const now=new Date();now.setHours(0,0,0,0);
+const threeDays=new Date(now.getTime()+3*24*60*60*1000);
+const urgent=data.assignments.filter(a=>{
+if(a.done)return false;
+if(a.priority==='high')return true;
+if(a.dueDate&&new Date(a.dueDate)<=threeDays)return true;
+return false;
+}).sort((a,b)=>new Date(a.dueDate||0)-new Date(b.dueDate||0)).slice(0,5);
+const container=document.getElementById('dashboard-priority');
+if(urgent.length===0){container.innerHTML=`<div class="empty-state"><span class="emoji">☁️</span><p>No urgent missions. Everything is fluffy and calm!</p></div>`;}
+else{container.innerHTML=urgent.map(a=>`<div class="item-card"><div class="item-content"><div class="item-title">${escapeHtml(a.title)}</div><div class="item-meta">${a.course?`<span class="course-tag">${escapeHtml(a.course)}</span>`:''}${a.dueDate?`📅 ${formatDate(a.dueDate)}`:''}${getDueBadge(a.dueDate)}${a.desc?`• ${escapeHtml(a.desc)}`:''}</div></div><span class="item-tag tag-${a.priority}">${a.priority}</span></div>`).join('');}
+}
+
+let currentCalDate=new Date();
+let selectedCalDate=null;
+
+function changeMonth(delta){
+currentCalDate.setMonth(currentCalDate.getMonth()+delta);
+renderCalendar();
+}
+
+function renderCalendar(){
+const year=currentCalDate.getFullYear();
+const month=currentCalDate.getMonth();
+const firstDay=new Date(year,month,1).getDay();
+const daysInMonth=new Date(year,month+1,0).getDate();
+const prevDaysInMonth=new Date(year,month,0).getDate();
+document.getElementById('currentMonth').textContent=currentCalDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+const grid=document.getElementById('calendar-grid');
+let html='';
+const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+dayNames.forEach(d=>html+=`<div class="cal-day-header">${d}</div>`);
+for(let i=firstDay-1;i>=0;i--){html+=`<div class="cal-day other-month"><span class="cal-day-number">${prevDaysInMonth-i}</span></div>`;}
+const today=new Date();
+for(let day=1;day<=daysInMonth;day++){
+const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+const isToday=today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===day;
+const isSelected=selectedCalDate===dateStr;
+const assignCount=data.assignments.filter(a=>a.dueDate===dateStr&&!a.done).length;
+const planCount=data.plans.filter(p=>p.date===dateStr).length;
+let dots='';
+if(assignCount)dots+=`<div class="cal-dot dot-assign" title="${assignCount} assignment(s)"></div>`;
+if(planCount)dots+=`<div class="cal-dot dot-plan" title="${planCount} plan(s)"></div>`;
+html+=`<div class="cal-day ${isToday?'today':''} ${isSelected?'selected':''}" onclick="selectDate('${dateStr}')"><span class="cal-day-number">${day}</span><div class="cal-dots">${dots}</div></div>`;
+}
+const remaining=(7-((firstDay+daysInMonth)%7))%7;
+for(let i=1;i<=remaining;i++){html+=`<div class="cal-day other-month"><span class="cal-day-number">${i}</span></div>`;}
+grid.innerHTML=html;
+}
+
+function selectDate(dateStr){
+selectedCalDate=dateStr;renderCalendar();
+const eventsPanel=document.getElementById('day-events');
+const eventsList=document.getElementById('day-events-list');
+const title=document.getElementById('selected-date-title');
+const assigns=data.assignments.filter(a=>a.dueDate===dateStr);
+const plans=data.plans.filter(p=>p.date===dateStr);
+if(assigns.length===0&&plans.length===0){eventsPanel.style.display='none';return;}
+title.textContent=`🗓️ ${formatDate(dateStr)}`;
+eventsPanel.style.display='block';
+let html='';
+assigns.forEach(a=>{html+=`<div class="item-card ${a.done?'done':''}"><div class="item-checkbox ${a.done?'checked':''}" onclick="toggleAssign('${a.id}');selectDate('${dateStr}')"></div><div class="item-content"><div class="item-title">📚 ${escapeHtml(a.title)}</div><div class="item-meta">${a.course?`<span class="course-tag">${escapeHtml(a.course)}</span>`:''}${a.desc?escapeHtml(a.desc):'No details'}</div></div><span class="item-tag tag-${a.priority}">${a.priority}</span></div>`;});
+plans.forEach(p=>{html+=`<div class="plan-card" style="margin-bottom:10px"><div class="plan-date">${p.time||'All day'}</div><div class="plan-title">🌸 ${escapeHtml(p.title)}</div>${p.desc?`<div class="plan-desc">${escapeHtml(p.desc)}</div>`:''}</div>`;});
+eventsList.innerHTML=html;
+}
+
+function escapeHtml(text){
+if(!text)return'';
+const div=document.createElement('div');div.textContent=text;return div.innerHTML;
+}
+
+function formatDate(dateStr){
+if(!dateStr)return'';
+const d=new Date(dateStr+'T00:00:00');
+return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function initCloudfield(){
+const canvas=document.getElementById('cloudfield');
+const ctx=canvas.getContext('2d');
+let clouds=[];
+const numClouds=15;
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+for(let i=0;i<numClouds;i++){
+clouds.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+width:80+Math.random()*120,
+height:40+Math.random()*40,
+speed:Math.random()*0.3+0.1,
+alpha:Math.random()*0.15+0.05
+});
+}
+function drawCloud(x,y,w,h,alpha){
+ctx.fillStyle=`rgba(255,255,255,${alpha})`;
+ctx.beginPath();
+ctx.ellipse(x,y,h,h*0.6,0,0,Math.PI*2);
+ctx.ellipse(x+w*0.3,y-h*0.2,h*0.8,h*0.5,0,0,Math.PI*2);
+ctx.ellipse(x-w*0.3,y-h*0.1,h*0.7,h*0.4,0,0,Math.PI*2);
+ctx.fill();
+}
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+clouds.forEach(cloud=>{
+cloud.x+=cloud.speed;
+if(cloud.x-cloud.width>canvas.width)cloud.x=-cloud.width;
+drawCloud(cloud.x,cloud.y,cloud.width,cloud.height,cloud.alpha);
+});
+requestAnimationFrame(animate);
+}
+animate();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+initCloudfield();loadData();requestNotificationPermission();
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('assign-date').value=today;
+document.getElementById('plan-date').value=today;
+setInterval(checkNotifications,60000);
+});
+</script>
+</body>
+</html>
