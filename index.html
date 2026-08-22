@@ -6,6 +6,8 @@
 <title>Cinnamoroll Tracker ☁️</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+
+/* ===== LIGHT MODE (default) ===== */
 :root{
   --bg-gradient-start:#e0f7fa;
   --bg-gradient-end:#fff0f5;
@@ -20,7 +22,68 @@
   --shadow:0 4px 20px rgba(137,207,240,0.15);
   --radius:20px;
   --glass-blur:blur(12px);
+  --input-bg:rgba(255,255,255,0.7);
+  --card-bg:rgba(255,255,255,0.7);
+  --card-hover-bg:rgba(255,255,255,0.9);
+  --scrollbar-thumb:rgba(137,207,240,0.3);
+  --scrollbar-thumb-hover:rgba(137,207,240,0.5);
+  --toggle-bg:rgba(137,207,240,0.3);
+  --toggle-knob:#fff;
+  --toggle-checked-bg:rgba(144,238,144,0.3);
+  --toggle-checked-knob:#90EE90;
+  --cloud-color:rgba(255,255,255);
+  --danger-bg:rgba(255,183,197,0.05);
+  --danger-border:rgba(255,183,197,0.4);
+  --sync-connected-bg:rgba(144,238,144,0.15);
+  --sync-disconnected-bg:rgba(255,183,197,0.15);
+  --icon-btn-bg:rgba(255,255,255,0.8);
+  --edit-mode-bg:rgba(137,207,240,0.08);
+  --code-box-bg:rgba(255,255,255,0.8);
+  --notif-count-border:#fff;
+  --cal-other-opacity:0.3;
+  --cal-today-bg:linear-gradient(135deg,rgba(137,207,240,0.15),rgba(255,183,197,0.15));
+  --cal-selected-bg:rgba(255,183,197,0.15);
+  --cal-hover-bg:rgba(137,207,240,0.1);
 }
+
+/* ===== DARK MODE ===== */
+[data-theme="dark"]{
+  --bg-gradient-start:#1a1a2e;
+  --bg-gradient-end:#16213e;
+  --panel-bg:rgba(30,30,60,0.75);
+  --panel-border:rgba(100,150,200,0.25);
+  --primary-blue:#7ec8e3;
+  --soft-pink:#e8a0bf;
+  --lavender:#c49ec4;
+  --cream:#2a2a4a;
+  --text-main:#d0d0e8;
+  --text-soft:#8888aa;
+  --shadow:0 4px 20px rgba(0,0,0,0.35);
+  --glass-blur:blur(16px);
+  --input-bg:rgba(20,20,45,0.6);
+  --card-bg:rgba(25,25,50,0.6);
+  --card-hover-bg:rgba(35,35,65,0.7);
+  --scrollbar-thumb:rgba(100,150,200,0.3);
+  --scrollbar-thumb-hover:rgba(100,150,200,0.5);
+  --toggle-bg:rgba(100,150,200,0.25);
+  --toggle-knob:#d0d0e8;
+  --toggle-checked-bg:rgba(100,200,150,0.25);
+  --toggle-checked-knob:#7ecfa0;
+  --cloud-color:rgba(180,200,230);
+  --danger-bg:rgba(200,100,130,0.08);
+  --danger-border:rgba(200,100,130,0.35);
+  --sync-connected-bg:rgba(100,200,150,0.12);
+  --sync-disconnected-bg:rgba(200,100,130,0.12);
+  --icon-btn-bg:rgba(25,25,50,0.8);
+  --edit-mode-bg:rgba(100,180,220,0.08);
+  --code-box-bg:rgba(20,20,45,0.8);
+  --notif-count-border:#1a1a2e;
+  --cal-other-opacity:0.2;
+  --cal-today-bg:linear-gradient(135deg,rgba(100,180,220,0.2),rgba(200,150,180,0.2));
+  --cal-selected-bg:rgba(200,150,180,0.2);
+  --cal-hover-bg:rgba(100,180,220,0.12);
+}
+
 body{
   font-family:'Segoe UI',system-ui,sans-serif;
   background:linear-gradient(180deg,var(--bg-gradient-start) 0%,var(--bg-gradient-end) 100%);
@@ -28,10 +91,11 @@ body{
   min-height:100vh;
   overflow-x:hidden;
   position:relative;
+  transition:background 0.5s ease, color 0.3s ease;
 }
 #cloudfield{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:20px}
-.header{text-align:center;padding:30px 0}
+.header{text-align:center;padding:30px 0;position:relative}
 .header h1{
   font-size:2.5rem;
   font-weight:800;
@@ -44,6 +108,33 @@ body{
 .header p{color:var(--text-soft);margin-top:8px;font-size:1rem}
 .astro-icon{font-size:3rem;display:block;margin-bottom:10px;animation:float 4s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+
+.dark-toggle{
+  position:fixed;
+  top:20px;
+  left:20px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:2px solid var(--panel-border);
+  background:var(--panel-bg);
+  backdrop-filter:var(--glass-blur);
+  color:var(--text-main);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.4rem;
+  z-index:100;
+  transition:all 0.3s ease;
+  box-shadow:var(--shadow);
+}
+.dark-toggle:hover{
+  border-color:var(--primary-blue);
+  transform:scale(1.1) rotate(15deg);
+  box-shadow:0 4px 16px rgba(137,207,240,0.2);
+}
+
 .data-controls{display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
 .btn{
   padding:10px 20px;
@@ -69,7 +160,7 @@ body{
 .btn-primary{
   background:linear-gradient(135deg,rgba(137,207,240,0.2),rgba(255,183,197,0.2));
   border-color:var(--primary-blue);
-  color:#4a90b8;
+  color:var(--primary-blue);
 }
 .btn-success{
   background:linear-gradient(135deg,rgba(144,238,144,0.2),rgba(144,238,144,0.05));
@@ -98,7 +189,7 @@ input[type="file"]{display:none}
 .tab.active{
   background:linear-gradient(135deg,rgba(137,207,240,0.25),rgba(255,183,197,0.25));
   border-color:var(--primary-blue);
-  color:#4a90b8;
+  color:var(--primary-blue);
   box-shadow:0 4px 16px rgba(137,207,240,0.15);
 }
 .panel{display:none;animation:fadeIn 0.4s ease}
@@ -113,6 +204,7 @@ input[type="file"]{display:none}
   padding:24px;
   box-shadow:var(--shadow);
   margin-bottom:20px;
+  transition:background 0.4s ease, border-color 0.3s ease;
 }
 .panel-title{
   font-size:1.3rem;
@@ -128,7 +220,7 @@ input[type="file"]{display:none}
   width:100%;
   padding:12px 16px;
   border:2px solid var(--panel-border);
-  background:rgba(255,255,255,0.7);
+  background:var(--input-bg);
   color:var(--text-main);
   border-radius:14px;
   font-size:0.95rem;
@@ -139,7 +231,7 @@ input[type="file"]{display:none}
 .input:focus,.select:focus,textarea:focus{
   border-color:var(--primary-blue);
   box-shadow:0 0 0 4px rgba(137,207,240,0.15);
-  background:#fff;
+  background:var(--input-bg);
 }
 .input::placeholder,textarea::placeholder{color:var(--text-soft)}
 textarea{resize:vertical;min-height:80px}
@@ -164,7 +256,7 @@ textarea{resize:vertical;min-height:80px}
   padding:6px;
   border:2px solid var(--panel-border);
   border-radius:14px;
-  background:rgba(255,255,255,0.6);
+  background:var(--card-bg);
   cursor:pointer;
   transition:all 0.2s;
   font-size:0.9rem;
@@ -173,19 +265,19 @@ textarea{resize:vertical;min-height:80px}
 }
 .cal-day:hover{
   border-color:var(--primary-blue);
-  background:rgba(137,207,240,0.1);
+  background:var(--cal-hover-bg);
   transform:scale(1.05);
 }
-.cal-day.other-month{opacity:0.3}
+.cal-day.other-month{opacity:var(--cal-other-opacity)}
 .cal-day.today{
   border-color:var(--primary-blue);
-  background:linear-gradient(135deg,rgba(137,207,240,0.15),rgba(255,183,197,0.15));
+  background:var(--cal-today-bg);
   font-weight:800;
-  color:#4a90b8;
+  color:var(--primary-blue);
 }
 .cal-day.selected{
   border-color:var(--soft-pink);
-  background:rgba(255,183,197,0.15);
+  background:var(--cal-selected-bg);
 }
 .cal-day-number{align-self:flex-start;font-weight:700}
 .cal-dots{display:flex;gap:3px;margin-top:auto;flex-wrap:wrap;justify-content:center}
@@ -194,7 +286,7 @@ textarea{resize:vertical;min-height:80px}
 .dot-plan{background:var(--lavender)}
 .item-list{display:flex;flex-direction:column;gap:10px}
 .item-card{
-  background:rgba(255,255,255,0.7);
+  background:var(--card-bg);
   border:2px solid var(--panel-border);
   border-radius:16px;
   padding:16px;
@@ -221,7 +313,7 @@ textarea{resize:vertical;min-height:80px}
   justify-content:center;
   flex-shrink:0;
   transition:all 0.2s;
-  background:#fff;
+  background:var(--input-bg);
 }
 .item-checkbox.checked{
   background:var(--primary-blue);
@@ -288,7 +380,7 @@ textarea{resize:vertical;min-height:80px}
   height:34px;
   border-radius:10px;
   border:2px solid var(--panel-border);
-  background:rgba(255,255,255,0.8);
+  background:var(--icon-btn-bg);
   color:var(--text-soft);
   cursor:pointer;
   display:flex;
@@ -298,18 +390,18 @@ textarea{resize:vertical;min-height:80px}
   font-size:1rem;
 }
 .icon-btn:hover{border-color:var(--soft-pink);color:#e07085;transform:scale(1.1)}
-.icon-btn.edit-btn:hover{border-color:var(--primary-blue);color:#4a90b8}
+.icon-btn.edit-btn:hover{border-color:var(--primary-blue);color:var(--primary-blue)}
 .item-card.done .item-title{text-decoration:line-through;opacity:0.5}
-.edit-mode{background:rgba(137,207,240,0.08)!important;border-color:var(--primary-blue)!important}
+.edit-mode{background:var(--edit-mode-bg)!important;border-color:var(--primary-blue)!important}
 .edit-fields{display:flex;flex-direction:column;gap:8px;width:100%}
-.edit-fields .input{background:#fff;font-size:0.9rem;padding:8px 12px}
+.edit-fields .input{background:var(--input-bg);font-size:0.9rem;padding:8px 12px}
 .edit-actions{display:flex;gap:8px;margin-top:4px}
 .edit-actions .btn{padding:6px 14px;font-size:0.8rem}
 .empty-state{text-align:center;padding:50px 20px;color:var(--text-soft)}
 .empty-state .emoji{font-size:3rem;margin-bottom:15px;display:block;opacity:0.8}
 .plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .plan-card{
-  background:rgba(255,255,255,0.7);
+  background:var(--card-bg);
   border:2px solid var(--panel-border);
   border-radius:16px;
   padding:20px;
@@ -362,8 +454,8 @@ textarea{resize:vertical;min-height:80px}
 .plan-desc:hover{background:rgba(137,207,240,0.1)}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(137,207,240,0.3);border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:rgba(137,207,240,0.5)}
+::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--scrollbar-thumb-hover)}
 @media(max-width:768px){
   .header h1{font-size:1.8rem}
   .calendar-grid{gap:3px}
@@ -373,6 +465,8 @@ textarea{resize:vertical;min-height:80px}
   .tab{padding:10px 14px;font-size:0.8rem}
   .item-card{padding:12px;gap:10px}
   .plan-grid{grid-template-columns:1fr}
+  .dark-toggle{top:12px;left:12px;width:40px;height:40px;font-size:1.1rem}
+  .notif-bell{top:12px;right:12px;width:40px;height:40px;font-size:1.1rem}
 }
 .save-indicator{
   position:fixed;
@@ -382,7 +476,7 @@ textarea{resize:vertical;min-height:80px}
   background:rgba(137,207,240,0.2);
   border:2px solid var(--primary-blue);
   border-radius:50px;
-  color:#4a90b8;
+  color:var(--primary-blue);
   font-size:0.85rem;
   font-weight:700;
   backdrop-filter:blur(10px);
@@ -426,7 +520,7 @@ textarea{resize:vertical;min-height:80px}
   display:flex;
   align-items:center;
   justify-content:center;
-  border:2px solid #fff;
+  border:2px solid var(--notif-count-border);
 }
 .notif-count.hidden{display:none}
 .sync-status{
@@ -439,10 +533,10 @@ textarea{resize:vertical;min-height:80px}
   font-weight:700;
   margin-bottom:16px;
 }
-.sync-status.connected{background:rgba(144,238,144,0.15);color:#5cb85c;border:2px solid #90EE90}
-.sync-status.disconnected{background:rgba(255,183,197,0.15);color:#e07085;border:2px solid var(--soft-pink)}
+.sync-status.connected{background:var(--sync-connected-bg);color:#5cb85c;border:2px solid #90EE90}
+.sync-status.disconnected{background:var(--sync-disconnected-bg);color:#e07085;border:2px solid var(--soft-pink)}
 .sync-code-box{
-  background:rgba(255,255,255,0.8);
+  background:var(--code-box-bg);
   border:2px solid var(--panel-border);
   border-radius:14px;
   padding:16px;
@@ -463,7 +557,7 @@ textarea{resize:vertical;min-height:80px}
 .toggle-slider{
   width:44px;
   height:24px;
-  background:rgba(137,207,240,0.3);
+  background:var(--toggle-bg);
   border-radius:24px;
   position:relative;
   transition:all 0.3s;
@@ -474,28 +568,31 @@ textarea{resize:vertical;min-height:80px}
   position:absolute;
   width:18px;
   height:18px;
-  background:#fff;
+  background:var(--toggle-knob);
   border-radius:50%;
   top:1px;
   left:1px;
   transition:all 0.3s;
   box-shadow:0 2px 4px rgba(0,0,0,0.1);
 }
-.toggle-switch input:checked+.toggle-slider{background:rgba(144,238,144,0.3);border-color:#90EE90}
-.toggle-switch input:checked+.toggle-slider::after{transform:translateX(20px);background:#90EE90}
+.toggle-switch input:checked+.toggle-slider{background:var(--toggle-checked-bg);border-color:#90EE90}
+.toggle-switch input:checked+.toggle-slider::after{transform:translateX(20px);background:var(--toggle-checked-knob)}
 .danger-zone{
-  border:2px solid rgba(255,183,197,0.4);
+  border:2px solid var(--danger-border);
   border-radius:16px;
   padding:20px;
   margin-top:20px;
-  background:rgba(255,183,197,0.05);
+  background:var(--danger-bg);
 }
 .danger-zone-title{color:#e07085;font-weight:800;font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .danger-zone p{color:var(--text-soft);font-size:0.85rem;margin-bottom:12px}
 </style>
+<base target="_blank">
 </head>
 <body>
 <canvas id="cloudfield"></canvas>
+
+<button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">🌙</button>
 
 <div class="notif-bell" onclick="switchTab('assignments')" title="Urgent missions">
 🎀<span class="notif-count hidden" id="notifCount">0</span>
@@ -683,9 +780,34 @@ textarea{resize:vertical;min-height:80px}
 let data={assignments:[],grocery:[],plans:[]};
 const STORAGE_KEY='cinnamoroll_tracker_data';
 const SYNC_KEY='cinnamoroll_tracker_sync';
+const THEME_KEY='cinnamoroll_tracker_theme';
 let syncConfig=null;
 let notifiedIds=new Set();
 let autoSyncInterval=null;
+
+function initTheme(){
+  const savedTheme=localStorage.getItem(THEME_KEY);
+  if(savedTheme==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    document.getElementById('darkToggle').textContent='☀️';
+  }else{
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('darkToggle').textContent='🌙';
+  }
+}
+
+function toggleDarkMode(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  if(isDark){
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem(THEME_KEY,'light');
+    document.getElementById('darkToggle').textContent='🌙';
+  }else{
+    document.documentElement.setAttribute('data-theme','dark');
+    localStorage.setItem(THEME_KEY,'dark');
+    document.getElementById('darkToggle').textContent='☀️';
+  }
+}
 
 function loadData(){
 const saved=localStorage.getItem(STORAGE_KEY);
@@ -1153,7 +1275,7 @@ alpha:Math.random()*0.15+0.05
 });
 }
 function drawCloud(x,y,w,h,alpha){
-ctx.fillStyle=`rgba(255,255,255,${alpha})`;
+ctx.fillStyle=`rgba(${getComputedStyle(document.documentElement).getPropertyValue('--cloud-color').trim()=='rgba(255,255,255)'?'255,255,255':(getComputedStyle(document.documentElement).getPropertyValue('--cloud-color').trim()=='rgba(180,200,230)'?'180,200,230':'255,255,255')},${alpha})`;
 ctx.beginPath();
 ctx.ellipse(x,y,h,h*0.6,0,0,Math.PI*2);
 ctx.ellipse(x+w*0.3,y-h*0.2,h*0.8,h*0.5,0,0,Math.PI*2);
@@ -1173,7 +1295,10 @@ animate();
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
-initCloudfield();loadData();requestNotificationPermission();
+initTheme();
+initCloudfield();
+loadData();
+requestNotificationPermission();
 const today=new Date().toISOString().split('T')[0];
 document.getElementById('assign-date').value=today;
 document.getElementById('plan-date').value=today;
