@@ -303,8 +303,9 @@
     .item-content { flex: 1; }
     .item-title { font-weight: 700; color: var(--text); }
     .item-subject { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-bottom: 2px; }
-    .item-meta { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
-    .item-actions { display: flex; gap: 6px; }
+    .item-desc { font-size: 0.85rem; color: var(--text2); margin-top: 4px; line-height: 1.4; white-space: pre-wrap; }
+    .item-meta { font-size: 0.8rem; color: var(--text2); margin-top: 4px; }
+    .item-actions { display: flex; gap: 6px; align-self: flex-start; }
 
     .badge {
       display: inline-block;
@@ -555,6 +556,7 @@
           <input type="text" id="assSubject" placeholder="Subject (e.g. Math, Biology)..." style="flex: 1;" />
           <input type="text" id="assTitle" placeholder="Assignment title..." style="flex: 2;" />
         </div>
+        <textarea id="assDesc" placeholder="Assignment description, instructions, notes..."></textarea>
         <div class="input-group">
           <input type="date" id="assDue" />
           <select id="assPriority">
@@ -739,9 +741,9 @@
     let deleteTimer = null;
     let isDark = false;
 
-    const STORAGE_KEY = 'cinnamoroll_data_v3';
-    const SYNC_KEY = 'cinnamoroll_sync_v3';
-    const THEME_KEY = 'cinnamoroll_theme_v3';
+    const STORAGE_KEY = 'cinnamoroll_data_v4';
+    const SYNC_KEY = 'cinnamoroll_sync_v4';
+    const THEME_KEY = 'cinnamoroll_theme_v4';
 
     // ===================== INIT =====================
     function init() {
@@ -930,6 +932,7 @@
     function addAssignment() {
       const subject = document.getElementById('assSubject').value.trim();
       const title = document.getElementById('assTitle').value.trim();
+      const description = document.getElementById('assDesc').value.trim();
       const due = document.getElementById('assDue').value;
       const priority = document.getElementById('assPriority').value;
       if (!title) return;
@@ -937,6 +940,7 @@
         id: Date.now(),
         subject,
         title,
+        description,
         due,
         priority,
         completed: false,
@@ -944,6 +948,7 @@
       });
       document.getElementById('assSubject').value = '';
       document.getElementById('assTitle').value = '';
+      document.getElementById('assDesc').value = '';
       document.getElementById('assDue').value = '';
       saveLocal();
       renderAssignments();
@@ -991,6 +996,7 @@
             <div class="item-content">
               ${a.subject ? `<div class="item-subject">📖 ${escapeHtml(a.subject)}</div>` : ''}
               <div class="item-title">${escapeHtml(a.title)} <span class="badge badge-${a.priority}">${a.priority}</span></div>
+              ${a.description ? `<div class="item-desc">${escapeHtml(a.description)}</div>` : ''}
               <div class="item-meta">${a.due ? '📅 Due: ' + formatNiceDate(a.due) : 'No due date'}</div>
             </div>
           </div>
@@ -1230,6 +1236,7 @@
         fields.innerHTML = `
           <input type="text" id="editSubject" value="${escapeHtml(item.subject || '')}" placeholder="Subject" style="width:100%;margin-bottom:10px;" />
           <input type="text" id="editTitle" value="${escapeHtml(item.title)}" placeholder="Title" style="width:100%;margin-bottom:10px;" />
+          <textarea id="editDesc" placeholder="Description" style="width:100%;margin-bottom:10px;">${escapeHtml(item.description || '')}</textarea>
           <input type="date" id="editDue" value="${item.due || ''}" style="width:100%;margin-bottom:10px;" />
           <select id="editPriority" style="width:100%;">
             <option value="low" ${item.priority==='low'?'selected':''}>Low</option>
@@ -1279,6 +1286,7 @@
         if (item) {
           item.subject = document.getElementById('editSubject').value;
           item.title = document.getElementById('editTitle').value;
+          item.description = document.getElementById('editDesc').value;
           item.due = document.getElementById('editDue').value;
           item.priority = document.getElementById('editPriority').value;
         }
